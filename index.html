@@ -10,17 +10,19 @@
 	</head>
 	<body>
 		<script type="text/javascript">
+			var dataset;
+			
 			d3.csv("cleaned_food_data.csv", function(data) {
 				dataset = data;
 				
 				console.log(data);
-			});
 
-			d3.select("body").selectAll("p")
-				.data(dataset)
-				.enter()
-				.append("p")
-				.text("New paragraph!");
+				d3.select("body").selectAll("p")
+					.data(dataset)
+					.enter()
+					.append("p")
+					.text("New paragraph!");
+			});
 		</script>
 	</body>
 </html>

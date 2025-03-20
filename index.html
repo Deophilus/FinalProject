@@ -17,6 +17,10 @@
 	</head>
 	<body>
 		<script type="text/javascript">
+			d3.csv("cleaned_food_data.csv", function(data) {
+				console.log(data);
+			});
+			
 			var dataset = [];
 			for (var i = 0; i < (Math.round(Math.random() * 20)) + 10; i++) {
 				var newData = Math.round(Math.random() * 30); // Generates a number between 0 and 1, then multiplies by 30 and rounds

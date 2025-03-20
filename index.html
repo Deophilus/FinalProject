@@ -6,131 +6,21 @@
 		<script src="https://d3js.org/d3.v3.min.js"></script>
 		
 		<style>
-			div.bar {
-				display: inline-block;
-				width: 20px;
-				height: 75px;
-				background-color: teal;
-				margin-right: 2px;
-			}
 		</style>
 	</head>
 	<body>
 		<script type="text/javascript">
 			d3.csv("cleaned_food_data.csv", function(data) {
+				dataset = data;
+				
 				console.log(data);
 			});
-			
-			var dataset = [];
-			for (var i = 0; i < (Math.round(Math.random() * 20)) + 10; i++) {
-				var newData = Math.round(Math.random() * 30); // Generates a number between 0 and 1, then multiplies by 30 and rounds
-				dataset.push(newData);
-			}
-			
-			
-			// Circles
-			var w = 500;
-			var h = 70;
-			var svg = d3.select("body")
-			.append("svg")
-			.attr("width", w)
-			.attr("height", h);
-			
-			var circles = svg.selectAll("circle")
-			.data(dataset)
-			.enter()
-			.append("circle");
-			
-			circles.attr("cx", function(d, i) {
-				return (i * 50) + 25;
-			})
-			.attr("cy", h/2)
-			.attr("r", function(d) {
-				return d;
-			})
-			.attr("fill", "yellow")
-			.attr("stroke", "orange")
-			.attr("stroke-width", function(d) {
-				return d/2;
-			});
-			
-			
-			
-			
-			
-			// SVG Bar Chart
-			gw = 500;
-			gh = 150;
-			var barPadding = 1;
-			var svg2 = d3.select("body")
-			.append("svg")
-			.attr("width", gw)
-			.attr("height", gh);
-			
-			svg2.selectAll("rect")
-			.data(dataset)
-			.enter()
-			.append("rect")
-			.attr("x", function(d, i) {
-				/*
-				Divides available width into even spaces based on the dataset's length.
-				The padding provides some additional space.
-				Multiplying by the iterator gives each bar its actual position.
-				*/
-				return (gw / dataset.length - barPadding) * i;
-			})
-			.attr("y", function(d) {
-				return gh - (d * 5); // Available height minus data value
-			})
-			.attr("width", 20)
-			.attr("height", function(d) {
-				return d * 5;
-			});
-			
-			svg2.selectAll("text")
-			.data(dataset)
-			.enter()
-			.append("text")
-			.text(function(d) {
-				return d;
-			})
-			.attr({
-				x: function(d, i) {
-					// Finds the middle of each bar
-					return (i * (gw / dataset.length - barPadding)) + 10;
-				}, 
-				y: function(d) {
-					return gh - (d * 5) + 14;
-				}, 
-				"font-family": "sans-serif", 
-				fill: "white", 
-				"font-size": "11px",
-				"text-anchor": "middle"
-			});
-			
-			
-			
-			
-			
-			
-			
-			// Div Bar Chart
-			d3.select("body")
-				.selectAll("div")
+
+			d3.select("body").selectAll("p")
 				.data(dataset)
 				.enter()
-				.append("div")
-				.attr("class", "bar")
-				.style("height", function(d) {
-					return (d * 5) + "px";
-				});
+				.append("p")
+				.text("New paragraph!");
 		</script>
-		
-		<br><br><br><br><br><br><br><br>
-		<div style="display: inline-block;
-					width: 20px;
-					height: 75px;
-					background-color: teal;"></div>
-		<div class = "bar"></div>
 	</body>
 </html>

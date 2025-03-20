@@ -12,7 +12,7 @@
 		<script type="text/javascript">
 			var dataset;
 			
-			d3.csv("cleaned_food_data.csv", function(data) {
+			d3.csv("freelancer_dataset.csv", function(data) {
 				dataset = data;
 				
 				console.log(data);
@@ -22,7 +22,7 @@
 					.enter()
 					.append("p")
 					.text(function(d) {
-						return d["Food Name"];
+						return d["Job_Category"];
 					});
 			});
 		</script>

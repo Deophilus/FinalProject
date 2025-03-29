@@ -6,26 +6,188 @@
 		<script src="https://d3js.org/d3.v3.min.js"></script>
 		
 		<style>
+			.axis line, 
+			.axis path {
+				fill: none;
+				stroke: black;
+				shape-rendering: crispEdges;
+			}
+			
+			.axis text {
+				font-family: sans-serif;
+				font-size: 11px;
+			}
+		
+			.dropdown {
+				position: relative;
+			}
+		
+			a {
+				display: block;
+				width: 100%;
+			}
+			
+			svg {
+				float: left;
+			}
 		</style>
 	</head>
 	<body>
 		<a href = "documentation.html">Documentation</a>
+		
+		<label class = "dropdown">Choose x-axis:</label>
+		<select id="xdropdown" class = "dropdown">
+			<option value="Age">Age</option>
+			<option value="Overall">Overall</option>
+			<option value="Potential">Potential</option>
+			<option value="Value(Â£)">Value(Â£)</option>
+		</select>
+		
 		<script type="text/javascript">
+			// These variables are defined globally so that they can be called anywhere
 			var dataset;
+			var xScale;
+			var yScale;
+			var gw;
+			var gh;
+			var svg;
+			var padding;
+			var xAxis;
+			var yAxis;
 			
-			d3.csv("freelancer_dataset.csv", function(data) {
+			d3.csv("FIFA23_official_data.csv", function(data) {
 				dataset = data;
-				
 				console.log(data);
 
-				d3.select("body").selectAll("p")
+				// Sets width and height of svg
+				gw = 600;
+				gh = 600;
+				
+				// Creates svg
+				svg = d3.select("body")
+				.append("svg")
+				.attr({
+					width: gw,
+					height: gh, 
+					class: "visualization"
+				});
+				
+				// Padding and Scales
+				padding = 25;
+				xScale = d3.scale.linear()
+					.domain([d3.min(dataset, function(d) {
+						return d["Age"]; // Selects a list of numbers so that the min of them can be found
+					}), d3.max(dataset, function(d) {
+						return d["Age"]; // Selects a list of numbers so that the max of them can be found
+					})])
+					.range([padding, gw - padding * 2]);
+					
+				yScale = d3.scale.linear()
+					.domain([d3.min(dataset, function(d) {
+						return d["Overall"];
+					}), d3.max(dataset, function(d) {
+						return d["Overall"];
+					})])
+					.range([gh - padding, padding]); // Output range is backwards so that the y-axis goes bottom-up
+					
+				// Preps x and y axes
+				xAxis = d3.svg.axis()
+					.scale(xScale)
+					.orient("bottom");
+				yAxis = d3.svg.axis()
+					.scale(yScale)
+					.orient("left");
+					
+				
+				// Create points
+				svg.append("g")
+					.attr({
+						id: "points"/*, 
+						"clip-path": "url(#chart-area)"*/
+					})
+					.selectAll("circle")
 					.data(dataset)
 					.enter()
-					.append("p")
-					.text(function(d) {
-						return d["Job_Category"];
+					.append("circle")
+					.attr({
+						cx: function(d) {
+							return xScale(d["Age"]) + (Math.random() - 0.5) * 5;
+						}, 
+						cy: function(d) {
+							return yScale(d["Overall"]) + (Math.random() - 0.5) * 5;
+						}, 
+						r: 4, 
+						opacity: 0.05
 					});
+					
+				//Creates axes
+				svg.append("g")
+					.attr({
+						class: "x axis", 
+						transform: "translate(0," + (gh - padding) + ")"
+					})
+					.call(xAxis);
+				svg.append("g")
+					.attr({
+						class: "y axis", 
+						transform: "translate(" + padding + ", 0)"
+					})
+					.call(yAxis);
+				
+				// Creates labels
+				svg.append("text")
+					.attr({
+						id: "xLabel", 
+						"text-anchor": "end", 
+						x: gw, 
+						y: gh - 30
+					})
+					.text("Age");
+				svg.append("text")
+					.attr({
+						id: "yLabel", 
+						"text-anchor": "start", 
+						y: 20
+					})
+					.text("Overall Skill");
 			});
+			
+			
+			d3.select("#xdropdown")
+				.on("change", function() {
+					newX = this.value;
+					
+					xScale.domain([d3.min(dataset, function(d) {
+						return d[newX]; // Selects a list of numbers so that the min of them can be found
+					}), d3.max(dataset, function(d) {
+						return d[newX]; // Selects a list of numbers so that the max of them can be found
+					})])
+					
+					
+					// Point Transitions
+					svg.selectAll("circle")
+						.data(dataset)
+						.transition()
+						.duration(1000)
+						.attr({
+							cx: function(d) {
+								return xScale(d[newX]) + (Math.random() - 0.5) * 5;
+							}
+						});
+						
+					// Axis transitions
+					svg.select(".x.axis")
+						.transition()
+						.duration(1000)
+						.call(xAxis);
+						
+					svg.select("#xLabel")
+						.transition()
+						.duration(1000)
+						.text(newX);
+						//.call(xAxis)
+				});
 		</script>
+		
 	</body>
 </html>

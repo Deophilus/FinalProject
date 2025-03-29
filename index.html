@@ -12,7 +12,6 @@
 				stroke: black;
 				shape-rendering: crispEdges;
 			}
-			
 			.axis text {
 				font-family: sans-serif;
 				font-size: 11px;
@@ -24,7 +23,6 @@
 		
 			a {
 				display: block;
-				width: 100%;
 			}
 			
 			svg {
@@ -35,16 +33,49 @@
 	<body>
 		<a href = "documentation.html">Documentation</a>
 		
+		<label class = "dropdown">Choose a category:</label>
+		<select id = "colorDropdown" class = "dropdown">
+			<option value = "None">None</option>
+			<option value = "Preferred Foot">Preferred Foot</option>
+		</select>
+		
 		<label class = "dropdown">Choose x-axis:</label>
-		<select id="xdropdown" class = "dropdown">
-			<option value="Age">Age</option>
-			<option value="Overall">Overall</option>
-			<option value="Potential">Potential</option>
-			<option value="Value(Â£)">Value(Â£)</option>
+		<select id = "xdropdown" class = "dropdown">
+			<option value = "Age">Age</option>
+			<option value = "Overall">Overall</option>
+			<option value = "Potential">Potential</option>
+			<option value = "Value(£)">Value(£)</option>
+			<option value = "Wage(£)">Wage(£)</option>
+			<option value = "Special">Special</option>
+			<option value = "International Reputation">International Reputation</option>
+			<option value = "Weak Foot">Weak Foot</option>
+			<option value = "Skill Moves">Skill Moves</option>
+			<option value = "Height(cm.)">Height(cm.)</option>
+			<option value = "Weight(lbs.)">Weight(lbs.)</option>
+			<option value = "Release Clause(£)">Release Clause(£)</option>
+		</select>
+		
+		<label class = "dropdown">Choose y-axis:</label>
+		<select id = "ydropdown" class = "dropdown">
+			<!--"Overall" comes first in this dropdown because it is the y-axis's default.-->
+			<!--Technically, the initially selected option isn't actually selected, but is rather manually synced to the default visualization.-->
+			<!--This is Age for the x-axis and Overall for the y-axis.-->
+			<option value = "Overall">Overall</option>
+			<option value = "Age">Age</option>
+			<option value = "Potential">Potential</option>
+			<option value = "Value(£)">Value(£)</option>
+			<option value = "Wage(£)">Wage(£)</option>
+			<option value = "Special">Special</option>
+			<option value = "International Reputation">International Reputation</option>
+			<option value = "Weak Foot">Weak Foot</option>
+			<option value = "Skill Moves">Skill Moves</option>
+			<option value = "Height(cm.)">Height(cm.)</option>
+			<option value = "Weight(lbs.)">Weight(lbs.)</option>
+			<option value = "Release Clause(£)">Release Clause(£)</option>
 		</select>
 		
 		<script type="text/javascript">
-			// These variables are defined globally so that they can be called anywhere
+			// These variables are defined globally so that they can be called from anywhere
 			var dataset;
 			var xScale;
 			var yScale;
@@ -55,9 +86,11 @@
 			var xAxis;
 			var yAxis;
 			
+			var svg2;
+			
+			
 			d3.csv("FIFA23_official_data.csv", function(data) {
 				dataset = data;
-				console.log(data);
 
 				// Sets width and height of svg
 				gw = 600;
@@ -102,8 +135,7 @@
 				// Create points
 				svg.append("g")
 					.attr({
-						id: "points"/*, 
-						"clip-path": "url(#chart-area)"*/
+						id: "points"
 					})
 					.selectAll("circle")
 					.data(dataset)
@@ -142,14 +174,15 @@
 						x: gw, 
 						y: gh - 30
 					})
-					.text("Age");
+					.text("Age →");
 				svg.append("text")
 					.attr({
 						id: "yLabel", 
 						"text-anchor": "start", 
 						y: 20
 					})
-					.text("Overall Skill");
+					.text("Overall ↑");
+					
 			});
 			
 			
@@ -158,9 +191,10 @@
 					newX = this.value;
 					
 					xScale.domain([d3.min(dataset, function(d) {
-						return d[newX]; // Selects a list of numbers so that the min of them can be found
+						// The "+" converts values to numbers
+						return +d[newX]; // Selects a list of numbers so that the min of them can be found
 					}), d3.max(dataset, function(d) {
-						return d[newX]; // Selects a list of numbers so that the max of them can be found
+						return +d[newX]; // Selects a list of numbers so that the max of them can be found
 					})])
 					
 					
@@ -180,12 +214,90 @@
 						.transition()
 						.duration(1000)
 						.call(xAxis);
-						
+					
+					// Changes labels
 					svg.select("#xLabel")
+						// Fade out
+						.transition()
+						.duration(500)
+						.attr("opacity", 0)
+						.each("end", function() {
+							d3.select(this)
+								.text(newX + " →") // Replaces old label
+								// Fade in
+								.transition()
+								.duration(500)
+								.attr("opacity", 1);
+						});
+				});
+			
+			d3.select("#ydropdown")
+				.on("change", function() {
+					newY = this.value;
+					
+					yScale.domain([d3.min(dataset, function(d) {
+						// The "+" converts values to numbers
+						return +d[newY]; // Selects a list of numbers so that the min of them can be found
+					}), d3.max(dataset, function(d) {
+						return +d[newY]; // Selects a list of numbers so that the max of them can be found
+					})])
+					
+					
+					// Point Transitions
+					svg.selectAll("circle")
+						.data(dataset)
 						.transition()
 						.duration(1000)
-						.text(newX);
-						//.call(xAxis)
+						.attr({
+							cy: function(d) {
+								return yScale(d[newY]) + (Math.random() - 0.5) * 5;
+							}
+						});
+						
+					// Axis transitions
+					svg.select(".y.axis")
+						.transition()
+						.duration(1000)
+						.call(yAxis);
+					
+					// Changes labels
+					svg.select("#yLabel")
+						// Fade out
+						.transition()
+						.duration(500)
+						.attr("opacity", 0)
+						.each("end", function() {
+							d3.select(this)
+								.text(newY + " ↑") // Replaces old label
+								// Fade in
+								.transition()
+								.duration(500)
+								.attr("opacity", 1);
+						});
+				});
+			
+			d3.select("#colorDropdown")
+				.on("change", function() {
+					newColorCategory = this.value;
+					
+					// Point Transitions
+					svg.selectAll("circle")
+						.data(dataset)
+						.transition()
+						.duration(1000)
+						.attr({
+							fill: function(d) {
+								if (newColorCategory == "None") {
+									return "black";
+								} else if (newColorCategory == "Preferred Foot") {
+									if (d["Preferred Foot"] == "Right") {
+										return "rgb(200, 0, 0)";
+									} else {
+										return "rgb(0, 0, 200)";
+									}
+								}
+							}
+						});
 				});
 		</script>
 		

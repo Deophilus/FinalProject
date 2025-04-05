@@ -213,9 +213,6 @@
 					
 				yScale = d3.scale.linear()
 					.domain([d3.min(dataset, function(d) {
-						console.log(d["Overall Skill"]);
-						console.log(isNaN(d["Overall Skill"]));
-						console.log(isNaN(+d["Overall Skill"]));
 						return d["Overall Skill"];
 					}), d3.max(dataset, function(d) {
 						return d["Overall Skill"];

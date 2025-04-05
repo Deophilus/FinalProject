@@ -245,7 +245,7 @@
 							return xScale(d["Age"]) + (Math.random() - 0.5) * 5;
 						}, 
 						cy: function(d) {
-							return yScale(d["Overall Skill"]) + (Math.random() - 0.5) * 5;
+							return yScale(+d["Overall Skill"]) + (Math.random() - 0.5) * 5;
 						}, 
 						r: 4, 
 						opacity: 0.05 // Also helps with the fact that there are over 17000 points

@@ -20,35 +20,97 @@
 			.dropdown {
 				position: relative;
 			}
-		
-			a {
-				display: block;
+			
+			/* Tooltip styling taken from the textbook. Might be overkill with the webkit and moz functionality. */
+			#tooltip {
+				position: absolute;
+				right: 0
+				width: auto;
+				height: auto;
+				padding: 10px;
+				background-color: white;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				pointer-events: none;
+				z-index: 1;
 			}
 			
+			#tooltip.hidden {
+				display: none;
+			}
+			
+			#tooltip p {
+				margin: 0;
+				font-family: sans-serif;
+				font-size: 12px;
+				line-height: 20px;
+			}
+			
+			#legend {
+				position: absolute;
+				top: 150px;
+				left: 600px;
+				width: auto;
+				height: auto;
+				padding: 10px;
+				background-color: white;
+				border-radis: 10px;
+				box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+				pointer-events: none;
+			}
+			
+			#legend.hidden2 {
+				display: none;
+			}
+			
+			#legend p {
+				margin: 8px;
+				font-family: Verdana;
+				font-size: 14px;
+				font-weight: bold;
+				text-align: center;
+				line-height: 20px;
+			}
+		
 			svg {
+				position: relative;
 				float: left;
 			}
 		</style>
 	</head>
 	<body>
+		<h1>Fifa 2023 Explorable Data</h1>
+		
 		<a href = "documentation.html">Documentation</a>
 		
+		<br><br>
+		
+		<!--Regarding the Dropdowns: 
+			Technically, initially selected options aren't actually selected, but are rather manually synced to the default visualization.
+			This is "None" for colorDropdown, Age for the x-axis, and Overall Skill for the y-axis.-->
 		<label class = "dropdown">Choose a category:</label>
 		<select id = "colorDropdown" class = "dropdown">
 			<option value = "None">None</option>
 			<option value = "Preferred Foot">Preferred Foot</option>
+			<option value = "International Reputation">International Reputation</option>
+			<option value = "Weak Foot Rating">Weak Foot Rating</option>
+			<option value = "Skill Moves">Skill Moves</option>
 		</select>
 		
 		<label class = "dropdown">Choose x-axis:</label>
 		<select id = "xdropdown" class = "dropdown">
 			<option value = "Age">Age</option>
-			<option value = "Overall">Overall</option>
+			<option value = "Overall Skill">Overall Skill</option>
 			<option value = "Potential">Potential</option>
 			<option value = "Value(£)">Value(£)</option>
 			<option value = "Wage(£)">Wage(£)</option>
-			<option value = "Special">Special</option>
+			<option value = "Special Ability Rating">Special Ability Rating</option>
 			<option value = "International Reputation">International Reputation</option>
-			<option value = "Weak Foot">Weak Foot</option>
+			<option value = "Weak Foot Rating">Weak Foot Rating</option>
 			<option value = "Skill Moves">Skill Moves</option>
 			<option value = "Height(cm.)">Height(cm.)</option>
 			<option value = "Weight(lbs.)">Weight(lbs.)</option>
@@ -57,22 +119,23 @@
 		
 		<label class = "dropdown">Choose y-axis:</label>
 		<select id = "ydropdown" class = "dropdown">
-			<!--"Overall" comes first in this dropdown because it is the y-axis's default.-->
-			<!--Technically, the initially selected option isn't actually selected, but is rather manually synced to the default visualization.-->
-			<!--This is Age for the x-axis and Overall for the y-axis.-->
-			<option value = "Overall">Overall</option>
+			<option value = "Overall Skill">Overall Skill</option>
 			<option value = "Age">Age</option>
 			<option value = "Potential">Potential</option>
 			<option value = "Value(£)">Value(£)</option>
 			<option value = "Wage(£)">Wage(£)</option>
-			<option value = "Special">Special</option>
+			<option value = "Special Ability Rating">Special Ability Rating</option>
 			<option value = "International Reputation">International Reputation</option>
-			<option value = "Weak Foot">Weak Foot</option>
+			<option value = "Weak Foot Rating">Weak Foot Rating</option>
 			<option value = "Skill Moves">Skill Moves</option>
 			<option value = "Height(cm.)">Height(cm.)</option>
 			<option value = "Weight(lbs.)">Weight(lbs.)</option>
 			<option value = "Release Clause(£)">Release Clause(£)</option>
 		</select>
+		
+		<div class="container" style="position: relative;">
+			<!-- Everything dynamic should be positioned relative to this container. Helps a lot with positioning everything correctly! :) -->
+		</div>
 		
 		<script type="text/javascript">
 			// These variables are defined globally so that they can be called from anywhere
@@ -86,8 +149,10 @@
 			var xAxis;
 			var yAxis;
 			
-			var svg2;
-			
+			// Most dynamic variables
+			var container;
+			var tooltip;
+			var legend;			
 			
 			d3.csv("FIFA23_official_data.csv", function(data) {
 				dataset = data;
@@ -96,17 +161,48 @@
 				gw = 600;
 				gh = 600;
 				
+				
+				container = d3.select(".container");
 				// Creates svg
-				svg = d3.select("body")
-				.append("svg")
-				.attr({
-					width: gw,
-					height: gh, 
-					class: "visualization"
-				});
+				svg = container.append("svg")//d3.select("body")
+					//.append("svg")
+					.attr({
+						width: gw,
+						height: gh, 
+						class: "visualization"
+					});
+				
+				// Creates Legend
+				legend = d3.select(".container")
+					.append("div")
+					.attr({
+						id: "legend", 
+						class: "hidden2"
+					});
+				legend.append("p")
+					.text("Legend");
+				
+				// Creates Tooltip
+				tooltip = d3.select(".container")
+					.append("div")
+					.attr({
+						id: "tooltip", 
+						class: "hidden"
+					});
+				tooltip.append("p")
+					.attr("id", "Name");
+				tooltip.append("p")
+					.attr("id", "Club");
+				tooltip.append("p")
+					.attr("id", "Nationality");
+				tooltip.append("p")
+					.attr("id", "Position");
+				tooltip.append("p")
+					.attr("id", "bodyType");
+				
 				
 				// Padding and Scales
-				padding = 25;
+				padding = 35;
 				xScale = d3.scale.linear()
 					.domain([d3.min(dataset, function(d) {
 						return d["Age"]; // Selects a list of numbers so that the min of them can be found
@@ -117,19 +213,21 @@
 					
 				yScale = d3.scale.linear()
 					.domain([d3.min(dataset, function(d) {
-						return d["Overall"];
+						return d["Overall Skill"];
 					}), d3.max(dataset, function(d) {
-						return d["Overall"];
+						return d["Overall Skill"];
 					})])
-					.range([gh - padding, padding]); // Output range is backwards so that the y-axis goes bottom-up
+					.range([gh - padding, padding]); // Output range is backwards so that the y-axis goes bottom-up (Cartesian Coordinate System)
 					
-				// Preps x and y axes
+				// Prepares x and y axes for d3 creation
 				xAxis = d3.svg.axis()
 					.scale(xScale)
-					.orient("bottom");
+					.orient("bottom")
+					.tickFormat(d3.format(".2s"));
 				yAxis = d3.svg.axis()
 					.scale(yScale)
-					.orient("left");
+					.orient("left")
+					.tickFormat(d3.format(".2s"));
 					
 				
 				// Create points
@@ -143,36 +241,110 @@
 					.append("circle")
 					.attr({
 						cx: function(d) {
+							// Adds some jitter to the points. Useful because there's over 17000 and they often stack
 							return xScale(d["Age"]) + (Math.random() - 0.5) * 5;
 						}, 
 						cy: function(d) {
-							return yScale(d["Overall"]) + (Math.random() - 0.5) * 5;
+							return yScale(d["Overall Skill"]) + (Math.random() - 0.5) * 5;
 						}, 
 						r: 4, 
-						opacity: 0.05
-					});
+						opacity: 0.05 // Also helps with the fact that there are over 17000 points
+					})
+					// Tooltips
+					.on("mouseover", function(d) {
+						// Get this point's x/y values and slightly modify for the tooltip
+						var xPosition = parseFloat(d3.select(this).attr("cx"));
+						var yPosition = parseFloat(d3.select(this).attr("cy")) - 180;
+
+						// Updates the tooltip's position and gives it its values
+						tooltip
+							.style("left", xPosition + "px")
+							.style("top", yPosition + "px")						
+							.select("#Name")
+							.text(function() {
+								// Deals with weird values in the dataset
+								// If the first two characters cannot be converted into a number, then this is a normal name and will work fine as is.
+								if (isNaN(+d["Name"].substring(0, 2))) {
+									return "Name: " + d["Name"] + " ";
+								} else { // Otherwise, get rid of the number and space in front of the name.
+									return "Name: " + d["Name"].substring(3) + " ";
+								}
+							});
+						tooltip
+							.select("#Name")
+							.append("img")
+							.attr({
+								width: 40, 
+								height: 40,
+								src: d["Photo"], 
+								alt: "Player Picture"
+							});
+						tooltip
+							.select("#Club")
+							.text("Club: " + d["Club"] + " ");
+						tooltip
+							.select("#Club")
+							.append("img")
+							.attr({
+								width: 30, 
+								height: 30,
+								src: d["Club Logo"], 
+								alt: "Club Picture"
+							});
+						tooltip
+							.select("#Nationality")
+							.text("Nationality: " + d["Nationality"] + " ");
+						tooltip
+							.select("#Nationality")
+							.append("img")
+							.attr({
+								width: 30, 
+								height: 30,
+								src: d["Flag"], 
+								alt: "Flag Picture"
+							});
+						tooltip
+							.select("#Position")
+							.text("Position: " + d["Position"]);
+						tooltip
+							.select("#bodyType")
+							.text(function() {
+								if (d["Body Type"] == "") {
+									return "Body Type: NA";
+								}
+								return "Body Type: " + d["Body Type"];
+							});
+							
+						// Shows the tooltip
+						d3.select("#tooltip").classed("hidden", false);
+
+					})
+				    .on("mouseout", function() {
+						// Hides the tooltip
+						d3.select("#tooltip").classed("hidden", true);
+				    });
 					
 				//Creates axes
 				svg.append("g")
 					.attr({
 						class: "x axis", 
-						transform: "translate(0," + (gh - padding) + ")"
+						transform: "translate(0," + (gh - padding) + ")" // Moves the x-axis (gh - padding) pixels down
 					})
 					.call(xAxis);
 				svg.append("g")
 					.attr({
 						class: "y axis", 
-						transform: "translate(" + padding + ", 0)"
+						transform: "translate(" + padding + ", 0)" // Moves the y-axis (padding) pixels to the right
 					})
 					.call(yAxis);
 				
-				// Creates labels
+				// Labels x and y axes
 				svg.append("text")
 					.attr({
 						id: "xLabel", 
 						"text-anchor": "end", 
 						x: gw, 
-						y: gh - 30
+						y: gh - 40
 					})
 					.text("Age →");
 				svg.append("text")
@@ -181,8 +353,7 @@
 						"text-anchor": "start", 
 						y: 20
 					})
-					.text("Overall ↑");
-					
+					.text("Overall Skill ↑");
 			});
 			
 			
@@ -192,13 +363,12 @@
 					
 					xScale.domain([d3.min(dataset, function(d) {
 						// The "+" converts values to numbers
-						return +d[newX]; // Selects a list of numbers so that the min of them can be found
+						return +d[newX];
 					}), d3.max(dataset, function(d) {
-						return +d[newX]; // Selects a list of numbers so that the max of them can be found
+						return +d[newX];
 					})])
 					
-					
-					// Point Transitions
+					// Points move to their new positions
 					svg.selectAll("circle")
 						.data(dataset)
 						.transition()
@@ -209,13 +379,13 @@
 							}
 						});
 						
-					// Axis transitions
+					// Updates x-axis's ticks and tick labels
 					svg.select(".x.axis")
 						.transition()
 						.duration(1000)
 						.call(xAxis);
 					
-					// Changes labels
+					// Changes x axis label
 					svg.select("#xLabel")
 						// Fade out
 						.transition()
@@ -237,13 +407,13 @@
 					
 					yScale.domain([d3.min(dataset, function(d) {
 						// The "+" converts values to numbers
-						return +d[newY]; // Selects a list of numbers so that the min of them can be found
+						return +d[newY];
 					}), d3.max(dataset, function(d) {
-						return +d[newY]; // Selects a list of numbers so that the max of them can be found
+						return +d[newY];
 					})])
 					
 					
-					// Point Transitions
+					// Points move to their new positions
 					svg.selectAll("circle")
 						.data(dataset)
 						.transition()
@@ -254,13 +424,13 @@
 							}
 						});
 						
-					// Axis transitions
+					// Updates y-axis's ticks and tick labels
 					svg.select(".y.axis")
 						.transition()
 						.duration(1000)
 						.call(yAxis);
 					
-					// Changes labels
+					// Changes y axis label
 					svg.select("#yLabel")
 						// Fade out
 						.transition()
@@ -280,7 +450,109 @@
 				.on("change", function() {
 					newColorCategory = this.value;
 					
-					// Point Transitions
+					// Clears legend as necessary
+					legend.selectAll("span").remove();
+					legend.selectAll("img").remove();
+					legend.selectAll("br").remove();
+					
+					//Show the legend
+					d3.select("#legend").classed("hidden2", false);
+					
+					if (newColorCategory == "None") {
+						//Hide the legend
+						d3.select("#legend").classed("hidden2", true);
+					} else if (newColorCategory == "Preferred Foot") {
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "redCircle.svg", 
+								alt: "Red Circle"
+							});
+						legend
+							.append("span")
+							.text(": Right");
+						legend.append("br");
+						
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "blueCircle.svg", 
+								alt: "Blue Circle"
+							});
+						legend
+							.append("span")
+							.text(": Left");
+					} else {
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "redCircle.svg", 
+								alt: "Red Circle"
+							});
+						legend
+							.append("span")
+							.text(": 5");
+						legend.append("br");
+						
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "orangeCircle.svg", 
+								alt: "Orange Circle"
+							});
+						legend
+							.append("span")
+							.text(": 4");
+						legend.append("br");
+						
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "yellowishCircle.svg", 
+								alt: "Yellowish Circle"
+							});
+						legend
+							.append("span")
+							.text(": 3");
+						legend.append("br");
+						
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "blueCircle.svg", 
+								alt: "Blue Circle"
+							});
+						legend
+							.append("span")
+							.text(": 2");
+						legend.append("br");
+							
+						legend
+							.append("img")
+							.attr({
+								width: 10, 
+								height: 10,
+								src: "darkBlueCircle.svg", 
+								alt: "Dark Blue Circle"
+							});
+						legend
+							.append("span")
+							.text(": 1");
+					}
+					
+					// Points appropriate change colors and/or opacity
 					svg.selectAll("circle")
 						.data(dataset)
 						.transition()
@@ -291,10 +563,32 @@
 									return "black";
 								} else if (newColorCategory == "Preferred Foot") {
 									if (d["Preferred Foot"] == "Right") {
-										return "rgb(200, 0, 0)";
+										return "rgb(255, 0, 0)";
 									} else {
-										return "rgb(0, 0, 200)";
+										return "rgb(0, 0, 255)";
 									}
+								} else {
+									if (d[newColorCategory] == 5) {
+										return "rgb(215, 25, 28)";
+									} else if (d[newColorCategory] == 4) {
+										return "rgb(253, 174, 97)";
+									} else if (d[newColorCategory] == 3) {
+										return "rgb(255, 255, 191)";
+									} else if (d[newColorCategory] == 2) {
+										return "rgb(171, 217, 233)";
+									} else {
+										return "rgb(44, 123, 182)";
+									}
+								}
+							}, 
+							opacity: function(d) {
+								if (newColorCategory == "None" || newColorCategory == "Preferred Foot") {
+									return 0.05;
+								} else {
+									/*Increased opacity due to the expressiveness principle.
+									Points are already quite opaque, and when 5 different colors are on screen, the lighter ones can also seem opaque.
+									To prevent confusion, opacity is increased.*/
+									return 0.5;
 								}
 							}
 						});

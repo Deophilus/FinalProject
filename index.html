@@ -74,6 +74,7 @@
 				font-weight: bold;
 				text-align: center;
 				line-height: 20px;
+				max-width: 120px;
 			}
 		
 			svg {
@@ -179,8 +180,6 @@
 						id: "legend", 
 						class: "hidden2"
 					});
-				legend.append("p")
-					.text("Legend");
 				
 				// Creates Tooltip
 				tooltip = d3.select(".container")
@@ -451,9 +450,14 @@
 					newColorCategory = this.value;
 					
 					// Clears legend as necessary
+					legend.selectAll("p").remove();
 					legend.selectAll("span").remove();
 					legend.selectAll("img").remove();
 					legend.selectAll("br").remove();
+					
+					// Creates the legend's title
+					legend.append("p")
+						.text(newColorCategory)
 					
 					//Show the legend
 					d3.select("#legend").classed("hidden2", false);

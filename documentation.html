@@ -45,17 +45,17 @@
 		<ul>
 		  <li>Scrap plans 2 and 3. They will add unnecessary complexity and create a needless learning curve</li>
 		  <li>Color hue can be used as an identity channel. This will remove the need for bar charts to encode categorical variables.</li>
-		  <li>Pie charts are also rendered unnecessary by the introduction of color because the percentage of each categorical attribute can now be visually determined.</li>
+		  <li>Pie charts are also rendered unnecessary by the introduction of color because the percentage of each categorical attribute can now be visually determined in another fashion.</li>
 		  <li>Tooltips will be used for any other attributes that are not forthcoming.</li>
 		</ul>
 		
 		<h3>Rationale of Design Choices</h3>
-		<p>Since there were a significant number of ordered attributes in my dataet, scatterplots were naturally looked to.
+		<p>Since there were a significant number of quantitative attributes in my dataet, scatterplots were naturally looked to.
 		They provides the important quality of position on a common scale, thus maximizing the visualization's effectiveness.
 		Different options for the x and y axes were provided, which lets the user analyze various quantitative attributes in creative ways.
 		An opacity of 0.05 and some slight jitter was applied due to there being over 17000 points in the dataset.
 		These changes let the user see trends and prevented hundreds of points from being stacked on top of each other.
-		All points were still visible, and the jitter did not substantially change the position of any point.
+		All points were still visible after these changes, and the jitter did not substantially change the position of any point.
 		<br><br>
 		By itself, this could already work as a good, standalone visualization.
 		However, the user should be able to peruse the dataset's categorical attributes as well.
@@ -67,14 +67,14 @@
 		This was due to the fact that the use of a magnitude channel for this variable would violate the expresiveness principle—specificially because it contains unordered observations.
 		It also retains an opacity of 0.05 as only two non-light colors were required for this encoding.
 		<br><br>
-		The features already present covered everything a user may wish for when exploring the dataset.
+		These features already covered everything a user may wish for when exploring the dataset.
 		However, there were some miscellaneous parts of the dataset that had no real value to the user looking for insights.
-		For this reasons, tooltips were implemented as an aesthetic feature that could pique the interest of both the casual and meticulous.</p>
+		For this reason, tooltips were implemented as a nod to aesthetics that could pique the interest of both the casual and meticulous.</p>
 		
 		<h3>A Sample of Findings</h3>
 		<p>In order to find facts or answer questions, I often asked a question and answered it. I would add color if nothing immediately popped.
 		Occasionally, there would be something to follow-up on.
-		All of this usually happened subconsciously, but the following are provided as an example.</p>
+		All of this usually happened within my mind, but the following are provided as an example.</p>
 		
 		<p><strong>Question: </strong> How does age correlate with overall skill?</p>
 		<p><strong>Answer: </strong> Age positively correlates with overall skill up to a certain point (around the age of 32), after which there is a negative correlation.
@@ -85,7 +85,7 @@
 		<p><strong>Question: </strong> What relationship do height and overall skill have?
 		And how does that factor in with the number of skill moves a player has?</p>
 		<p><strong>Answer: </strong> Height and overall skill do not have any clear relationship.
-		Skill moves increase with the overall skill of players, and it also has a noteworthy negative association with height.
+		Skill moves increase with the overall skill of players, and they also have a noteworthy negative association with height.
 		This suggests that shorter players find it easier to execute skill moves.</p>
 		<img src = "secondQuestion.png" width = 500px>
 		
